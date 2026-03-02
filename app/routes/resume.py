@@ -2,10 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .. import models, schemas
 from ..database import SessionLocal, engine
-import openai
+import google.generativeai as genai
 import os
+from dotenv import load_dotenv
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 router = APIRouter()
 
@@ -33,13 +36,15 @@ def read_resume(resume_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Resume not found")
     return db_resume
 
-@router.post("/resumes/screen", response_model=schemas.Resume)
+@router.post("/resumes/screen")
 def screen_resume(resume: schemas.ResumeCreate):
-    # Call OpenAI to screen resume
-    response = openai.Completion.create(
-        engine="davinci-codex",
-        prompt=f"Screen this resume: {resume.name}, {resume.email}, {resume.skills}",
-        max_tokens=50
-    )
-    screening_result = response.choices[0].text.strip()
-    return {"screening_result": screening_result}
+    # Call Google Gemini to screen resume
+    model = genai.GenerativeModel('gemini-pro')
+    prompt = f"Screen this resume: Name: {resume.name}, Email: {resume.email}, Skills: {resume.skills}. Provide a brief evaluation."
+    
+    try:
+        response = model.generate_content(prompt)
+        screening_result = response.text.strip()
+        return {"screening_result": screening_result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
