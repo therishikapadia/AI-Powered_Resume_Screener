@@ -1,92 +1,76 @@
-# AI-Powered Resume Screener
+# AI-Powered Resume Screener & HR Assistant
 
-An intelligent resume screening application that leverages OpenAI to evaluate candidate profiles based on their input skills. This tool streamlines the initial recruitment process by providing instant automated feedback on candidate suitability.
+A full-stack AI hiring platform designed to automate resume screening, evaluate candidates against technical job descriptions, and query talent pools conversationally using Vectorless RAG. Built with FastAPI, PostgreSQL, React, Tailwind CSS, and Google Gemini.
 
-## Key Features
+## 🚀 Key Features
 
-- **AI-Powered Analysis**: Automatically screens resumes using OpenAI's advanced language models to provide instant feedback.
-- **Modern UI**: Clean, responsive interface featuring Dark Mode support for better usability.
-- **Real-time Feedback**: Instant evaluation results displayed in an interactive modal.
-- **Database Integration**: Securely stores candidate information including Name, Email, and Skills using PostgreSQL.
-- **RESTful API**: Built on high-performance FastAPI for robust backend processing.
+### 1. Vectorless RAG Candidate Chat
+Talk to your database. Recruiters can query the entire pool of candidates simultaneously through a conversational AI interface. Because the system utilizes **Vectorless RAG** (Retrieval-Augmented Generation), it loads massive candidate context directly into the Gemini model, completely eliminating the complexity, latency, and drift associated with intermediate Vector Databases.
+* **Example Query**: *"Which candidate has the most backend experience with Python?"*
 
-## Tech Stack
+### 2. Implicit Bias Mitigation (Blind Screening)
+AI fairness is critical in modern HR applications. This system includes an automated Pre-Processing Privacy Filter. When PDF resumes are parsed, they pass through a redaction model that automatically scrubs Personally Identifiable Information (PII) such as Names, Emails, Phone Numbers, Addresses, and Genders. The evaluation engine scores strictly on skills and experience.
 
-This project is built using the following technologies:
+### 3. Automated Structured Candidate Rankings
+The core evaluation engine takes a dynamic Job Description and scores all uploaded candidates autonomously. It outputs rigorously validated Structured JSON containing:
+- Specific `Score` out of 10.
+- `Pros` and `Cons` arrays tailored precisely to the Job Description gap analysis.
+- Explanatory `Reasoning` for internal recruiter audit trails.
 
-- **Frontend**:
-  - HTML5
-  - CSS3 (Responsive Design)
-  - JavaScript (Vanilla ES6+)
-- **Backend**: 
-  - Python 3.x
-  - FastAPI
-  - Uvicorn (ASGI Server)
-- **Database**:
-  - PostgreSQL
-  - SQLAlchemy (ORM)
-- **AI Integration**:
-  - OpenAI API
+### 4. Modern, Performant Architecture
+- **Backend / Database**: Built on asynchronous **FastAPI** leveraging **SQLAlchemy** (PostgreSQL). Robust CRUD capabilities for multi-job posting tracking and candidate deletion. Uses `pdfplumber` for in-memory parsing without filesystem bloat.
+- **Frontend**: Clean, responsive **React + Tailwind v4** Single Page Application featuring interactive Dark/Light modes, elegant evaluation cards, and live AI polling components.
 
-## Screenshots
+---
 
-![Screenshot 1](images/Screenshot1.png)
-![Screenshot 2](images/Screenshot2.png)
+## 🛠️ Tech Stack
 
-## Getting Started
+* **Backend**: Python, FastAPI, SQLAlchemy, PostgreSQL, `pdfplumber`
+* **Frontend**: React, Vite, Tailwind CSS v4, Lucide React, Axios
+* **AI Engine**: Google Gemini API (`gemini-2.5-flash`)
 
-Follow these instructions to get a copy of the project up and running on your local machine.
+## 🚦 Getting Started
 
 ### Prerequisites
-
-- Python 3.8 or higher
+- Python 3.9+
+- Node.js & npm
 - PostgreSQL database
-- OpenAI API Key
+- Google Gemini API Key
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/AI-Powered-Resume-Screener.git
-   cd AI-Powered-Resume-Screener
-   ```
-
-2. **Set up the backend environment**
-   
-   It's recommended to use a virtual environment:
+### Backend Setup
+1. Create a virtual environment and activate it:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
-
-   Install the required dependencies:
+2. Install dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install fastapi uvicorn sqlalchemy psycopg2-binary pdfplumber python-multipart pydantic google-generativeai python-dotenv
    ```
-
-3. **Configure Environment Variables**
-
-   Create a `.env` file in the root directory of the project and add your configuration:
+3. Create a `.env` file in the root directory:
    ```env
-   OPENAI_API_KEY=your_openai_api_key_here
+   GEMINI_API_KEY=your_gemini_api_key_here
    DATABASE_URL=postgresql://user:password@localhost/dbname
    ```
-
-4. **Run the Application**
-
-   Start the FastAPI server:
+4. Start the FastAPI server (auto-reloads on changes):
    ```bash
    uvicorn app.main:app --reload
    ```
 
-   The backend API will be available at `http://127.0.0.1:8000`.
+### Frontend Setup
+1. Open a new terminal and navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-5. **Access the Frontend**
-
-   Open the `index.html` file in your preferred web browser. 
-   
-   *Note: Since the frontend makes fetch requests to the backend, ensure your server is running. You may need to configure wait for the frontend to be served or configure CORS if running directly from the file system.*
-
-## License
-
-This project is licensed under the MIT License.
+## 🧠 Future Roadmap
+- WebSocket support for live, streaming evaluation results.
+- Automated interview question generation based on candidate's exact weaknesses (identified in the `Cons` list).
