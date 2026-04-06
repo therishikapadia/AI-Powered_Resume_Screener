@@ -45,7 +45,7 @@ The core evaluation engine takes a dynamic Job Description and scores all upload
    ```
 2. Install dependencies:
    ```bash
-   pip install fastapi uvicorn sqlalchemy psycopg2-binary pdfplumber python-multipart pydantic google-generativeai python-dotenv
+   pip install -r requirements.txt
    ```
 3. Create a `.env` file in the root directory:
    ```env
