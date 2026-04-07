@@ -8,7 +8,7 @@ function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-const API_BASE = 'http://127.0.0.1:8000/jobs';
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
