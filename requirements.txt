@@ -5,3 +5,6 @@ psycopg2-binary
 python-dotenv
 google-generativeai
 aiofiles
+slowapi
+pdfplumber
+python-multipart

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from sqlalchemy.orm import Session
 from typing import List
 import pdfplumber
@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from .. import models, schemas
 from ..database import SessionLocal, engine
+from ..limiter import limiter
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -42,7 +43,8 @@ def get_job(job_id: int, db: Session = Depends(get_db)):
     return job
 
 @router.post("/{job_id}/candidates/upload", response_model=List[schemas.CandidateResponse])
-async def upload_candidates(job_id: int, files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def upload_candidates(request: Request, job_id: int, files: List[UploadFile] = File(...), db: Session = Depends(get_db)):
     job = db.query(models.JobPosting).filter(models.JobPosting.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -101,7 +103,8 @@ async def upload_candidates(job_id: int, files: List[UploadFile] = File(...), db
     return new_candidates
 
 @router.post("/{job_id}/rank")
-def rank_candidates(job_id: int, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def rank_candidates(request: Request, job_id: int, db: Session = Depends(get_db)):
     job = db.query(models.JobPosting).filter(models.JobPosting.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -186,7 +189,8 @@ def delete_candidate(job_id: int, candidate_id: int, db: Session = Depends(get_d
     return {"status": "success", "message": "Candidate deleted"}
 
 @router.post("/{job_id}/chat")
-def chat_with_candidates(job_id: int, req: schemas.ChatRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def chat_with_candidates(request: Request, job_id: int, req: schemas.ChatRequest, db: Session = Depends(get_db)):
     job = db.query(models.JobPosting).filter(models.JobPosting.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
