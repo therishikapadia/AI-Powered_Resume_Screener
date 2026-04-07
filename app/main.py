@@ -16,8 +16,6 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
-# Drop existing tables and recreate them for the new schema
-Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 # Add CORS middleware to allow cross-origin requests
